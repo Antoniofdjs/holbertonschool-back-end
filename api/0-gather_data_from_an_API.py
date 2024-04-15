@@ -24,26 +24,27 @@ def get_employee(id=None):
 
     if isinstance(id, int):
         user = requests.get(f"https://jsonplaceholder.typicode.com/users/{id}")
-        to_dos = requests.get("https://jsonplaceholder.typicode.com/todos/")
+        to_dos = requests.get(
+            f"https://jsonplaceholder.typicode.com/todos/?userId={id}"
+            )
 
         if to_dos.status_code == 200 and user.status_code == 200:
             user = json.loads(user.text)
             to_dos = json.loads(to_dos.text)
 
-            total_tasks = 0
+            total_tasks = len(to_dos)
             tasks_completed = 0
-            titles = []
+            titles_completed = []
 
             for to_do in to_dos:
-                if to_do['userId'] == user['id']:
-                    total_tasks += 1
-                    if to_do['completed'] is True:
-                        tasks_completed += 1
-                        titles.append(to_do['title'])
+                if to_do['completed'] is True:
+                    tasks_completed += 1
+                    titles_completed.append(to_do['title'])
 
-            print(f"Employee {user['name']} is done with tasks\
-                  ({tasks_completed}/{total_tasks})")
-            for title in titles:
+            tasks_completed = len(titles_completed)
+
+            print(f"Employee {user['name']} is done with tasks({tasks_completed}/{total_tasks})")
+            for title in titles_completed:
                 print(f"\t {title}")
 
 
