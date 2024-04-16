@@ -3,10 +3,9 @@
     Api REST
 '''
 
-
+import json
 import requests
 from sys import argv
-import json
 
 
 def get_employee(id=None):
