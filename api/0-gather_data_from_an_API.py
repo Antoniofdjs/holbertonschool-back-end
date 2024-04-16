@@ -3,13 +3,11 @@
     Api REST
 '''
 
+if __name__ == '__main__':
+    import json
+    import requests
+    from sys import argv
 
-import json
-import requests
-from sys import argv
-
-
-def get_employee(id=None):
     '''
         Using this REST API, for a given employee ID,
         returns information about his/her TODO list progress.
@@ -25,7 +23,6 @@ def get_employee(id=None):
             id = int(argv[1])
         except ValueError:
             pass
-            return
 
     if isinstance(id, int):
         user = requests.get(f"https://jsonplaceholder.typicode.com/users/{id}")
@@ -52,7 +49,3 @@ def get_employee(id=None):
                   ({tasks_completed}/{total_tasks})")
             for title in titles_completed:
                 print(f"\t {title}")
-
-
-if __name__ == '__main__':
-    get_employee()
