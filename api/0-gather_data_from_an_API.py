@@ -11,19 +11,14 @@ from sys import argv
 
 def get_employee(id=None):
     '''
-        using this REST API, for a given employee ID,
+        Using this REST API, for a given employee ID,
         returns information about his/her TODO list progress.
-    '''
-    '''
-    Using this REST API, for a given employee ID,
-    returns information about his/her TODO list progress.
 
-    Args:
-        id (int): The employee ID.
+        Args:
+            id (int): The employee ID.
 
-    Returns:
-        None
-
+        Returns:
+            None
     '''
     if len(argv) > 1:
         try:
@@ -47,13 +42,13 @@ def get_employee(id=None):
             titles_completed = []
 
             for to_do in to_dos:
-                if to_do['completed'] is True:
+                if to_do.get('completed'):
                     tasks_completed += 1
-                    titles_completed.append(to_do['title'])
+                    titles_completed.append(to_do.get('title'))
 
             tasks_completed = len(titles_completed)
 
-            print(f"Employee {user['name']} is done with tasks\
+            print(f"Employee {user.get('name')} is done with tasks\
                   ({tasks_completed}/{total_tasks})")
             for title in titles_completed:
                 print(f"\t {title}")
