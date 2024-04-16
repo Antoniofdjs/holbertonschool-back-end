@@ -68,44 +68,44 @@ def get_employee(id=None):
                 writer = csv.writer(csv_file, quoting=csv.QUOTE_ALL)
                 writer.writerows(csv_rows)
 
-    # 3.0 All users JSON Section
-    users = requests.get("https://jsonplaceholder.typicode.com/users/")
+        # 3.0 All users JSON Section
+        users = requests.get("https://jsonplaceholder.typicode.com/users/")
 
-    if users.status_code == 200:
-        users = json.loads(users.text)
+        if users.status_code == 200:
+            users = json.loads(users.text)
 
-        # {USER_ID:[ {"username": "USERNAME"},{"username: ..."}], USER2_ID:[{}]
-        dict_for_json = {}
-        for user in users:
-            user_list = []
-            user_id = user['id']
-            api_url = 'https://jsonplaceholder.typicode.com'
-            tasks = requests.get(
-                f"{api_url}/todos/?userId={user_id}"
-                )
+            # {USER_ID:[ {"username": "USERNAME"},{"username: ..."}], USER2_ID:[{}]
+            dict_for_json = {}
+            for user in users:
+                user_list = []
+                user_id = user['id']
+                api_url = 'https://jsonplaceholder.typicode.com'
+                tasks = requests.get(
+                    f"{api_url}/todos/?userId={user_id}"
+                    )
 
-            if tasks.status_code == 200:
-                tasks = json.loads(tasks.text)
-                for task in tasks:
-                    user_dict = {}
-                    username = user['username']
-                    task_title = task['title']
-                    completed = task['completed']
+                if tasks.status_code == 200:
+                    tasks = json.loads(tasks.text)
+                    for task in tasks:
+                        user_dict = {}
+                        username = user['username']
+                        task_title = task['title']
+                        completed = task['completed']
 
-                    # Make user dictionary for list
-                    user_dict.update(
-                        {'username': username,
-                         'task': task_title,
-                         'completed': completed
-                         }
-                        )
-                    user_list.append(user_dict)
+                        # Make user dictionary for list
+                        user_dict.update(
+                            {'username': username,
+                            'task': task_title,
+                            'completed': completed
+                            }
+                            )
+                        user_list.append(user_dict)
 
-                # Finally put the list inside the json dict
-                dict_for_json[user_id] = user_list
+                    # Finally put the list inside the json dict
+                    dict_for_json[user_id] = user_list
 
-        with open("todo_all_employees.json", 'w') as file:
-            json.dump(dict_for_json, file)
+            with open("todo_all_employees.json", 'w') as file:
+                json.dump(dict_for_json, file)
 
 
 if __name__ == '__main__':
