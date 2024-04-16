@@ -63,18 +63,23 @@ def get_employee(id=None):
             with open(f"{user_id}.csv", 'w', newline='') as csv_file:
                 writer = csv.writer(csv_file, quoting=csv.QUOTE_ALL)
                 writer.writerows(csv_rows)
-            
+
             # Data for json of a single user
             json_dict = {}
-            user_list =[]
+            user_list = []
             for task in to_dos:
                 user_dict = {}
-                user_dict.update({'task': task['title'], 'completed': task['completed'], 'username': user['username']})
+                user_dict.update(
+                    {'task': task['title'],
+                     'completed': task['completed'],
+                     'username': user['username']}
+                    )
                 user_list.append(user_dict)
             json_dict[user['id']] = user_list
 
             with open(f"{user['id']}.json", 'w') as json_file:
                 json.dump(json_dict, json_file)
+
 
 if __name__ == '__main__':
     get_employee()
