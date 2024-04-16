@@ -19,16 +19,19 @@ def get_employee(id=None):
         try:
             id = int(argv[1])
         except ValueError:
-            pass
+            print("Invalid user ID.")
             return
 
     if isinstance(id, int):
-        user = requests.get(f"https://jsonplaceholder.typicode.com/users/{id}")
-        to_dos = requests.get(
-            f"https://jsonplaceholder.typicode.com/todos/?userId={id}"
-            )
+        try:
+            user = requests.get(f"https://jsonplaceholder.typicode.com/users/{id}")
+            user.raise_for_status()
 
-        if to_dos.status_code == 200 and user.status_code == 200:
+            to_dos = requests.get(
+                f"https://jsonplaceholder.typicode.com/todos/?userId={id}"
+            )
+            to_dos.raise_for_status()
+
             user = json.loads(user.text)
             to_dos = json.loads(to_dos.text)
 
@@ -59,12 +62,18 @@ def get_employee(id=None):
                     {'task': task['title'],
                      'completed': task['completed'],
                      'username': user['username']}
-                    )
+                )
                 user_list.append(user_dict)
             json_dict[user['id']] = user_list
 
             with open(f"{user['id']}.json", 'w') as json_file:
                 json.dump(json_dict, json_file)
+
+        except requests.exceptions.RequestException as e:
+            print("Failed to retrieve data from the API:", e)
+
+        except json.JSONDecodeError as e:
+            print("Failed to parse JSON response:", e)
 
 
 if __name__ == '__main__':
