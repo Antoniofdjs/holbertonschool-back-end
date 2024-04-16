@@ -4,7 +4,6 @@
 '''
 
 if __name__ == '__main__':
-    import json
     import requests
     from sys import argv
 
@@ -31,8 +30,8 @@ if __name__ == '__main__':
             )
 
         if to_dos.status_code == 200 and user.status_code == 200:
-            user = json.loads(user.text)
-            to_dos = json.loads(to_dos.text)
+            user = user.json()
+            to_dos = to_dos.json()
 
             total_tasks = len(to_dos)
             tasks_completed = 0
