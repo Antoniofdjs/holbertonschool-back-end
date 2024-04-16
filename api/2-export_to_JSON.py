@@ -1,48 +1,80 @@
 #!/usr/bin/python3
-"""Documentation"""
-import json
+'''
+    Api REST
+'''
+
+
 import requests
-import sys
+from sys import argv
+import json
+import csv
 
-if __name__ == "__main__":
-    employee_id = int(sys.argv[1])
 
-    api_url = f'https://jsonplaceholder.typicode.com/users/{employee_id}'
-    response = requests.get(api_url)
+def get_employee(id=None):
+    '''
+        using this REST API, for a given employee ID,
+        returns information about his/her TODO list progress.
+    '''
+    # check if argv[1] is a number int, it means we are using argv
+    if len(argv) > 1:
+        try:
+            id = int(argv[1])
+        except ValueError:
+            pass
+            return
 
-    employee_name = response.json()["username"]
+    if isinstance(id, int):
+        user = requests.get(f"https://jsonplaceholder.typicode.com/users/{id}")
+        to_dos = requests.get(
+            f"https://jsonplaceholder.typicode.com/todos/?userId={id}"
+            )
 
-    api_url2 = (
-            f'https://jsonplaceholder.typicode.com/todos?userId={employee_id}'
-    )
-    response = requests.get(api_url2)
+        if to_dos.status_code == 200 and user.status_code == 200:
+            user = json.loads(user.text)
+            to_dos = json.loads(to_dos.text)
 
-    tasks = response.json()
-    total_tasks = len(tasks)
+            total_tasks = len(to_dos)
+            tasks_completed = 0
+            titles_completed = []
+            csv_rows = []
+            user_id = id
 
-    completed_tasks = []
-    for task in tasks:
-        if task["completed"]:
-            completed_tasks.append(task)
+            for to_do in to_dos:
+                # Prepare rows for csv file
+                csv_rows.append(
+                    [user_id, user['username'],
+                     to_do['completed'],
+                     to_do['title']
+                     ]
+                    )
+                # Count and append titles of completed tasks
+                if to_do['completed'] is True:
+                    tasks_completed += 1
+                    titles_completed.append(to_do['title'])
 
-    n_total_tasks = len(completed_tasks)
+            tasks_completed = len(titles_completed)
 
-    print(
-        f"Employee {employee_name} is done with "
-        f"tasks({n_total_tasks}/{total_tasks}):"
-    )
+            # Data of User Prints with tasks
+            print(f"Employee {user['name']} is done \
+                  with tasks({tasks_completed}/{total_tasks})")
+            for title in titles_completed:
+                print(f"\t {title}")
 
-    for task in completed_tasks:
-        print(f"\t {task['title']}")
+            with open(f"{user_id}.csv", 'w', newline='') as csv_file:
+                writer = csv.writer(csv_file, quoting=csv.QUOTE_ALL)
+                writer.writerows(csv_rows)
+            
+            # Data for json of a single user
+            json_dict = {}
+            user_list =[]
+            for task in to_dos:
+                user_dict = {}
+                user_dict.update({'task': task['title'], 'completed': task['completed'], 'username': user['username']})
+                user_list.append(user_dict)
+            json_dict[user['id']] = user_list
 
-    json_dict = {employee_id: []}
-    for task in tasks:
-        json_format = {
-            "task": task["title"],
-            "completed": task["completed"],
-            "username": employee_name
-        }
-        json_dict[employee_id].append(json_format)
+            with open(f"{user['id']}.json", 'w') as json_file:
+                json.dump(json_dict, json_file)
 
-    with open(f"{employee_id}.json", 'w') as json_file:
-        json.dump(json_dict, json_file)
+if __name__ == '__main__':
+    get_employee()
