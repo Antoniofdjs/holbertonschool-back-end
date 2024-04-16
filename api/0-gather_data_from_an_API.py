@@ -14,7 +14,17 @@ def get_employee(id=None):
         using this REST API, for a given employee ID,
         returns information about his/her TODO list progress.
     '''
-    # check if argv[1] is a number int, it means we are using argv
+    '''
+    Using this REST API, for a given employee ID,
+    returns information about his/her TODO list progress.
+
+    Args:
+        id (int): The employee ID.
+
+    Returns:
+        None
+
+    '''
     if len(argv) > 1:
         try:
             id = int(argv[1])
