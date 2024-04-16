@@ -1,85 +1,47 @@
 #!/usr/bin/python3
-'''
-    Api REST
-'''
-
-
-import requests
-from sys import argv
-import json
-import csv
-
-
-def get_employee(id=None):
-    '''
-        using this REST API, for a given employee ID,
-        returns information about his/her TODO list progress.
-    '''
-    # check if argv[1] is a number int, it means we are using argv
-    if len(argv) > 1:
-        try:
-            id = int(argv[1])
-        except ValueError:
-            pass
-            return
-
-    if isinstance(id, int):
-        user = requests.get(f"https://jsonplaceholder.typicode.com/users/{id}")
-        to_dos = requests.get(
-            f"https://jsonplaceholder.typicode.com/todos/?userId={id}"
-            )
-
-        if to_dos.status_code == 200 and user.status_code == 200:
-            user = json.loads(user.text)
-            to_dos = json.loads(to_dos.text)
-
-            total_tasks = len(to_dos)
-            tasks_completed = 0
-            titles_completed = []
-            csv_rows = []
-            user_id = id
-
-            for to_do in to_dos:
-                # Prepare rows for csv file
-                csv_rows.append(
-                    [user_id, user['username'],
-                     to_do['completed'],
-                     to_do['title']
-                     ]
-                    )
-                # Count and append titles of completed tasks
-                if to_do['completed'] is True:
-                    tasks_completed += 1
-                    titles_completed.append(to_do['title'])
-
-            tasks_completed = len(titles_completed)
-
-            # Data of User Prints with tasks
-            print(f"Employee {user['name']} is done \
-                  with tasks({tasks_completed}/{total_tasks})")
-            for title in titles_completed:
-                print(f"\t {title}")
-
-            with open(f"{user_id}.csv", 'w', newline='') as csv_file:
-                writer = csv.writer(csv_file, quoting=csv.QUOTE_ALL)
-                writer.writerows(csv_rows)
-
-            # Data for json of a single user
-            json_dict = {}
-            user_list = []
-            for task in to_dos:
-                user_dict = {}
-                user_dict.update(
-                    {'task': task['title'],
-                     'completed': task['completed'],
-                     'username': user['username']}
-                    )
-                user_list.append(user_dict)
-            json_dict[user['id']] = user_list
-
-            with open(f"{user['id']}.json", 'w') as json_file:
-                json.dump(json_dict, json_file)
-
-
+""" Console Module """
+"""
+Pythin script that uses this  rest api for given
+employee ID to return info about his/her todo list progress
+"""
 if __name__ == '__main__':
-    get_employee()
+    import csv
+    import json
+    from requests import get
+    from sys import argv
+    """this module is fucking documented"""
+
+    employee_ID = argv[1]
+    all_todos = get(f'https://jsonplaceholder.typicode.com/todos')
+    users = get(f'https://jsonplaceholder.typicode.com/users')
+
+    employee_list = json.loads(all_todos.text)
+    users = json.loads(users.text)
+    for user in users:
+        if user.get('id') == int(employee_ID):
+            employee_name = user.get('username')
+
+    task_count = 0
+    task_list = []
+    task_success = []
+    for employee in employee_list:
+        if employee.get('userId') == int(employee_ID):
+            task_count += 1
+            task_list.append(employee['title'])
+            task_success.append(employee['completed'])
+
+    json_list = []
+    employee_id = str(employee_ID)
+    THE_dict = {}
+    for i in range(len(task_list)):
+        true_or_false = bool(task_success[i])
+        task = f'{task_list[i]}'
+        name = employee_name
+        every_dict = ({'task': task,
+                       'completed': true_or_false,
+                       'username': name})
+        json_list.append(every_dict)
+    THE_dict[employee_id] = json_list
+
+    with open(f'{employee_ID}.json', 'w') as f:
+        json.dump(THE_dict, f)
